@@ -735,7 +735,7 @@ int modo_normal() {
   //if (gpson == 0){digitalWrite(led0,LOW);}
 
   //disp(leeGSMbat(),"%",2);
-
+  
 
   qry = "x=" + dev + "&a=";
   
