@@ -761,7 +761,7 @@ int modo_normal() {
   leeAT("AT");
   delay(100);
 
-
+   
 
   //qry =  qry + leeGSM() + ",";
 
