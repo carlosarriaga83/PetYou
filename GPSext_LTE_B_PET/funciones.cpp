@@ -10,6 +10,12 @@
 TinyGPS TNYgps;
 
 
+#include <Wire.h>
+
+#include "RTClib.h"
+char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+RTC_DS1307 rtc;
+
   
 SoftwareSerial con(1, 2);
 #define GPSe Serial
@@ -67,7 +73,7 @@ void fclass::UPDATE() {
   //R_RUNTIME = CORE_RUNTIME();
   //con.print("R_RUNTIME: ");con.print(R_RUNTIME);
   //con.print(" T_LAST: ");con.println(T_LAST);
-
+  
   if (true){
   //if ( (R_RUNTIME - T_LAST) >= T_STATIC){ //ENVIAR
 
@@ -240,7 +246,7 @@ bool fclass::GSM_LOC() {
     byte month, day, hour, minute, second, hundredths;
 
     //rtc.adjust(DateTime(ano.toInt() - 2000, mes.toInt(), dia.toInt(), hor.toInt(), mi.toInt(), se.toInt()));
-    //rtc.adjust(DateTime(year, month, day, hour, minute, second));
+    rtc.adjust(DateTime(year, month, day, hour, minute, second));
 
     return true;
   } else {
@@ -392,12 +398,119 @@ bool fclass::STATUS_REG() {
   return S_REG;
 }
 
+
+
+void fclass::I2C_BEGIN(){
+  
+  Wire.begin();  
+}
+
+void fclass::I2C_SCAN(){
+
+  
+
+  byte error, address;
+  int nDevices;
+
+  con.println("Scanning...");
+
+  nDevices = 0;
+  for (address = 1; address < 127; address++ )
+  {
+    // The i2c_scanner uses the return value of
+    // the Write.endTransmisstion to see if
+    // a device did acknowledge to the address
+    Wire.beginTransmission(address);
+    error = Wire.endTransmission();
+
+    if (error == 0)
+    {
+      con.print("I2C device found at address 0x");
+      if (address < 16)
+        con.print("0");
+      con.print(address, HEX);
+      con.println("  !");
+
+      nDevices++;
+    }
+    else if (error == 4)
+    {
+      con.print("Unknow error at address 0x");
+      if (address < 16)
+        con.print("0");
+      con.println(address, HEX);
+    }
+  }
+  if (nDevices == 0)
+    con.println("No I2C devices found\n");
+  else
+    con.println("done\n");
+
+  //delay(5000);           // wait 5 seconds for next scan
+
+
+
+  
+}
+
+bool fclass::RTC_START() {
+
+  con.begin(57600);
+  con.println("RTC_START: ");
+  
+  if (! rtc.begin()) {
+    con.println("Couldn't find RTC");
+    return 0;
+    while (1);
+  }
+  return 1;
+}
+
+String fclass::RTC_READ() {
+
+  con.begin(57600);
+  con.println("RTC_READ: ");
+  
+  DateTime now = rtc.now();
+
+  char buffer1 [25] = "";
+
+  sprintf(buffer1, "%04d/%02d/%02d\n %02d:%02d:%02d", now.year(), now.month(), now.day(), now.hour(), now.minute(), now.second());
+  //disp(buffer1, "", 1);
+
+
+  unsigned long unixxtime  = now.unixtime();
+  con.print("UNIX: "); con.println(now.unixtime());
+
+  /*
+  console.print(now.year(), DEC);
+  console.print('/');
+  console.print(now.month(), DEC);
+  console.print('/');
+  console.print(now.day(), DEC);
+  console.print(" (");
+  console.print(daysOfTheWeek[now.dayOfTheWeek()]);
+  console.print(") ");
+  console.print(now.hour(), DEC);
+  console.print(':');
+  console.print(now.minute(), DEC);
+  console.print(':');
+  console.print(now.second(), DEC);
+  console.println();
+  */
+  char buf[11];
+  sprintf (buf, "%lu", unixxtime);
+  return String(buf);
+}
+
+
 void fclass::CORE_SLEEP(int k, String razon) {
   con.begin(57600);
   con.print("CORE_SLEEP ");con.print(String(razon));con.println(String(k));
   int ajuste15 = 0;
   for (int m = 1; m <= k; m++) {
-    con.print("SLEEPING.");con.print(String(razon));con.print("."); con.println(String(k - m));
+    
+    con.print(RTC_READ());con.print("SLEEPING.");con.print(String(razon));con.print("."); con.println(String(k - m));
     LowPower.powerDown(SLEEP_1S, ADC_OFF, BOD_OFF); ///ESTA ESTA BIEN
     ajuste15++;
     if (ajuste15 >= 15){ajuste15 = 0;m++;}

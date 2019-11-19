@@ -41,12 +41,6 @@ Adafruit_GPS GPS(&GPSSerial);
 
 
 
-#include <Wire.h>
-
-#include "RTClib.h"
-char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
-
-RTC_DS1307 rtc;
 
 float gx = 0;
 float gy = 0;
@@ -175,7 +169,7 @@ void setup()
   LOCUS.attempts = 0;
   LOCUS.cycles = 0;
 
-  Wire.begin();
+  
 
 
 
@@ -213,10 +207,7 @@ void setup()
 
 
 
-  if (! rtc.begin()) {
-    console.println("Couldn't find RTC");
-    while (1);
-  }
+
 
   delay(2500);
 
@@ -286,6 +277,10 @@ void loop() {
   //mode_debug();
   //funciones.REG_OFF();
   //funciones.CORE_SLEEP(1);
+
+  funciones.I2C_BEGIN();
+  funciones.I2C_SCAN();
+  funciones.RTC_START();
   funciones.UPDATE();
 
 
@@ -1108,7 +1103,7 @@ String leeGSM() {
 
 
     //rtc.adjust(DateTime(ano.toInt() - 2000, mes.toInt(), dia.toInt(), hor.toInt(), mi.toInt(), se.toInt()));
-    rtc.adjust(DateTime(year, month, day, hour, minute, second));
+    //rtc.adjust(DateTime(year, month, day, hour, minute, second));
 
     return q;
   } else {
@@ -1451,7 +1446,7 @@ String print_date(TinyGPS &Tgps)
 
 
     // January 21, 2014 at 3am you would call:
-    rtc.adjust(DateTime(year, month, day, hour, minute, second));
+    //rtc.adjust(DateTime(year, month, day, hour, minute, second));
 
 
     //sprintf(sz, "%02d/%02d/%02d %02d:%02d:%02d ", month, day, year, hour, minute, second);
@@ -1586,8 +1581,10 @@ void disp(String q, String w, int linea) {
 
 
 }
-void scani2c() {
 
+
+void scani2c() {
+/*
   byte error, address;
   int nDevices;
 
@@ -1627,11 +1624,13 @@ void scani2c() {
 
   //delay(5000);           // wait 5 seconds for next scan
 
-
+*/
 }
 
-String reloj() {
 
+
+String reloj() {
+/*
   DateTime now = rtc.now();
 
   char buffer1 [25] = "";
@@ -1661,35 +1660,9 @@ String reloj() {
   char buf[11];
   sprintf (buf, "%lu", unixxtime);
   return String(buf);
-  /*
-    console.print(" since midnight 1/1/1970 = ");
-    console.print(now.unixtime());
-    console.print("s = ");
-    console.print(now.unixtime() / 86400L);
-    console.println("d");
 
-    // calculate a date which is 7 days and 30 seconds into the future
-    DateTime future (now + TimeSpan(7,12,30,6));
-
-    console.print(" now + 7d + 30s: ");
-    console.print(future.year(), DEC);
-    console.print('/');
-    console.print(future.month(), DEC);
-    console.print('/');
-    console.print(future.day(), DEC);
-    console.print(' ');
-    console.print(future.hour(), DEC);
-    console.print(':');
-    console.print(future.minute(), DEC);
-    console.print(':');
-    console.print(future.second(), DEC);
-    console.println();
-
-    console.println();
-    delay(3000);
-  */
   delay(20);
-
+*/
 }
 
 

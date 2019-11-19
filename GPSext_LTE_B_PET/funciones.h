@@ -48,7 +48,12 @@ class fclass
     String GSM_BAT();
     bool GSM_CONNECT();
     bool GSM_SEND(String url,String qry);
-    
+
+    bool RTC_START();
+    String RTC_READ();
+
+    void I2C_SCAN();
+    void I2C_BEGIN();
 
     void STATUS();
     bool STATUS_GPS(int to);
