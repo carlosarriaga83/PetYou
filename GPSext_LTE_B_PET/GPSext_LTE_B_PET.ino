@@ -277,10 +277,21 @@ void loop() {
   //mode_debug();
   //funciones.REG_OFF();
   //funciones.CORE_SLEEP(1);
+  
+  funciones.REG_ON();
 
-  funciones.I2C_BEGIN();
-  funciones.I2C_SCAN();
-  funciones.RTC_START();
+    funciones.I2C_BEGIN();
+    funciones.I2C_SCAN();
+    
+    funciones.RTC_START();
+
+    for (int i = 1;i <= 10;i++){
+        funciones.RTC_READ();
+      }
+      
+
+  funciones.REG_OFF();
+  
   funciones.UPDATE();
 
 

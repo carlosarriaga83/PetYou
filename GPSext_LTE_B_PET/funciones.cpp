@@ -245,8 +245,8 @@ bool fclass::GSM_LOC() {
     int year;
     byte month, day, hour, minute, second, hundredths;
 
-    //rtc.adjust(DateTime(ano.toInt() - 2000, mes.toInt(), dia.toInt(), hor.toInt(), mi.toInt(), se.toInt()));
-    rtc.adjust(DateTime(year, month, day, hour, minute, second));
+    rtc.adjust(DateTime(ano.toInt() - 2000, mes.toInt(), dia.toInt(), hor.toInt(), mi.toInt(), se.toInt()));
+    //rtc.adjust(DateTime(year, month, day, hour, minute, second));
 
     return true;
   } else {
@@ -463,6 +463,18 @@ bool fclass::RTC_START() {
     return 0;
     while (1);
   }
+
+
+  if (! rtc.isrunning()) {
+    con.println("RTC is NOT running!");
+    
+    // January 21, 2014 at 3am you would call:
+    rtc.adjust(DateTime(2014, 1, 21, 3, 0, 0));
+
+    return 0;
+  }
+
+  
   return 1;
 }
 
@@ -470,17 +482,29 @@ String fclass::RTC_READ() {
 
   con.begin(57600);
   con.println("RTC_READ: ");
+
+
   
-  DateTime now = rtc.now();
+  DateTime now;
+  
+  if (S_REG == 1){
+      now = rtc.now();
+  }else{
+      REG_ON();
+      now = rtc.now();
+      REG_OFF();
+  }
+  
 
-  char buffer1 [25] = "";
+  char ts_string [25] = "";
 
-  sprintf(buffer1, "%04d/%02d/%02d\n %02d:%02d:%02d", now.year(), now.month(), now.day(), now.hour(), now.minute(), now.second());
+  sprintf(ts_string, "%04d-%02d-%02d %02d:%02d:%02d", now.year(), now.month(), now.day(), now.hour(), now.minute(), now.second());
+  //con.println(ts_string);
   //disp(buffer1, "", 1);
 
 
   unsigned long unixxtime  = now.unixtime();
-  con.print("UNIX: "); con.println(now.unixtime());
+  //con.print("UNIX: "); con.println(now.unixtime());
 
   /*
   console.print(now.year(), DEC);
@@ -498,9 +522,10 @@ String fclass::RTC_READ() {
   console.print(now.second(), DEC);
   console.println();
   */
-  char buf[11];
-  sprintf (buf, "%lu", unixxtime);
-  return String(buf);
+  char unix_string[11];
+  sprintf (unix_string, "%lu", unixxtime);
+  //return String(unix_string);
+  return String(ts_string);
 }
 
 
