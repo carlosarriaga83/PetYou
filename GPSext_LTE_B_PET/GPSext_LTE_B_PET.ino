@@ -282,13 +282,7 @@ void loop() {
 
     funciones.I2C_BEGIN();
     funciones.I2C_SCAN();
-    
-    funciones.RTC_START();
-
-    for (int i = 1;i <= 10;i++){
-        funciones.RTC_READ();
-      }
-      
+    funciones.RTC_START();   
 
   funciones.REG_OFF();
   

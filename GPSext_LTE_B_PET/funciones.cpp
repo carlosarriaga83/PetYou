@@ -133,6 +133,7 @@ void fclass::UPDATE() {
             D_OUT = "DEV=" + DEV_NAME + "&"
             "BAT=" + R_BAT + "&"
             "IMEI=" + R_IMEI + "&"
+            "RTC=" + RTC_READ() + "&"
             "RAZON=" + String(RAZON);
 
 
@@ -524,8 +525,8 @@ String fclass::RTC_READ() {
   */
   char unix_string[11];
   sprintf (unix_string, "%lu", unixxtime);
-  //return String(unix_string);
-  return String(ts_string);
+  return String(unix_string);
+  //return String(ts_string);
 }
 
 
