@@ -14,6 +14,11 @@ class fclass
     fclass();
     void REG_ON();
     void REG_OFF();
+
+    void OLED_DISP(String label, String val, int linea);
+    void OLED_INI();
+
+    String CURRENT_READ(); 
     
     void NEO_INT_SETUP();
     void NEO_INT_SET(int r, int g, int b);
@@ -60,7 +65,7 @@ class fclass
     bool STATUS_GSM();
     bool STATUS_REG();
 
-    
+
 
     void CORE_SLEEP(int k,String razon);
     long unsigned CORE_RUNTIME();

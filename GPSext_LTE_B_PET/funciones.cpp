@@ -3,6 +3,13 @@
 #include <SoftwareSerial.h>
 #include <Adafruit_NeoPixel.h>
 
+#include <Adafruit_SSD1306.h>
+#define OLED_RESET 4
+Adafruit_SSD1306 display(OLED_RESET);
+
+#include "EmonLib.h"                   // Include Emon Library
+EnergyMonitor emon1;                   // Create an instance
+
 #include "SIM800.h"
 #include "LowPower.h"
 
@@ -31,6 +38,7 @@ const uint8_t neo_ext_pin = 21;
 const uint8_t led0_pin = 0; //LED0
 const uint8_t gps_e_pin = 14; //GPS ENABLE PIN
 const uint8_t gps_pps_pin = 29; //GPS PPS
+const uint8_t analog_in4_pin = 4; //ANALOG PIN INPUT 4
 
 //-----------VARIABLES-------------
 //int GPS_baud = 4800;
@@ -105,7 +113,9 @@ void fclass::UPDATE() {
     */
     
     con.println("=============TO DO=======");
+      
 
+      
       R_GPS_TS=R_GPS_LAT=R_GPS_LON= R_GPS_LASTFIX= R_GPS_SAT= R_GPS_ALT=R_GPS_SPEED=R_GPS_SPEED="-1";
   
       con.println("ENVIAR:");
@@ -128,7 +138,12 @@ void fclass::UPDATE() {
       if (S_GSM == true){delay(500);R_IP = GSM_IP();R_IMEI = leeAT("AT+GSN");R_BAT = GSM_BAT();}
   
 
+      //NEO_INT_SETUP();
+      //NEO_INT_SET(200, 200, 200);
 
+      OLED_INI();
+      OLED_DISP("ENVIAR ", "", 1);
+      
       
             D_OUT = "DEV=" + DEV_NAME + "&"
             "BAT=" + R_BAT + "&"
@@ -160,7 +175,7 @@ void fclass::UPDATE() {
           
         }
 
-      
+
             
       clean(D_OUT);     
       //con.print(URL);
@@ -175,15 +190,21 @@ void fclass::UPDATE() {
       if (C_GPS == "0"){REG_OFF();}
 
       if (R_GPS_SPEED.toInt() >= SPEED_TRIGGER){// SI SE ESTA MOVIENDO
+          
           RETURN_TO_STATIC_COUNT = 0;
+          
           if (T_DIN > 60 ){REG_OFF();GSM_SLEEP();}
+          
           CORE_SLEEP(T_DIN,"D" + String(RETURN_TO_STATIC_COUNT));
           RAZON = "D" + String(RETURN_TO_STATIC_COUNT);
+        
         }
         
       if (R_GPS_SPEED.toInt() < SPEED_TRIGGER){// NO SE ESTA MOVIENDO
         if (RETURN_TO_STATIC_COUNT <= 10){
+            
             RETURN_TO_STATIC_COUNT++;
+            
             if (T_DIN > 60 ){REG_OFF();GSM_SLEEP();}
             CORE_SLEEP(T_DIN,"D_2_E:" + String(RETURN_TO_STATIC_COUNT));
             RAZON = "D_2_E" + String(RETURN_TO_STATIC_COUNT);
@@ -205,6 +226,60 @@ void fclass::UPDATE() {
 
   
 }
+
+
+String fclass::CURRENT_READ() {
+      emon1.current(analog_in4_pin, 111.1);             // Current: input pin, calibration.
+      double Irms = emon1.calcIrms(1480);  // Calculate Irms only
+      return String(Irms);
+  }
+
+
+      
+
+void fclass::OLED_INI() {
+  // by default, we'll generate the high voltage from the 3.3v line internally! (neat!)
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // initialize with the I2C addr 0x3D (for the 128x64)
+  // init done
+
+  // Show image buffer on the display hardware.
+  // Since the buffer is intialized with an Adafruit splashscreen
+  // internally, this will display the splashscreen.
+  display.display();
+  //delay(2000);
+
+  // Clear the buffer.
+  display.clearDisplay();
+
+  display.stopscroll();
+  //display.startscrollleft(0x00, 0x09);
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
+}
+
+void fclass::OLED_DISP(String label, String val, int linea) {
+  if (S_REG == 1){
+    OLED_INI();
+    display.clearDisplay();
+    if (linea == 1) { display.setCursor(0, 0); }
+    if (linea == 2) { display.setCursor(6, 9); }
+    display.print(F(" ")); display.print(label); display.print(val); display.display();
+    //fondo();
+  }else{
+      REG_ON();
+        OLED_INI();
+        display.clearDisplay();
+        if (linea == 1) { display.setCursor(0, 0); }
+        if (linea == 2) { display.setCursor(6, 9); }
+        display.print(F(" ")); display.print(label); display.print(val); display.display();
+        //fondo();
+      REG_OFF();
+  }
+  
+
+
+
+  }
 
 bool fclass::GSM_LOC() {
   

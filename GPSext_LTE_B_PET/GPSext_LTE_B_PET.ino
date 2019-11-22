@@ -2,11 +2,11 @@
 #include <Adafruit_NeoPixel.h>
 #include "funciones.h"
 
-#include <Adafruit_SSD1306.h>
+
 //#include <HDQ.h>
 //HDQ HDQ(24); // Arduino digital pin 24
-#define OLED_RESET 4
-Adafruit_SSD1306 display(OLED_RESET);
+
+
 
 //#include <TinyGPS++.h>
 //TinyGPSPlus gps;
@@ -22,13 +22,9 @@ TinyGPS Tgps;
 //#define PIN 12 //NEOPIXEL
 //Adafruit_NeoPixel strip = Adafruit_NeoPixel(60, PIN, NEO_GRB + NEO_KHZ800);
 
-//#define PAT "device=GPS3&a=%s*%s&b=%s*%s&c=%s&f=%s"
-//#define APN "pda.bell.ca"
-//String APN = "internet.fido.ca";
+
 #define APN "TM"
-//String APN =  "rogers-core-appl1.apn";
-//uint32_t errors = 0;
-//String url = "turniot.com/GPS/din.php?";
+
 String url = "gps2.turniot.com/php/din.php?";
 
 CGPRS_SIM800 gprs;
@@ -194,7 +190,7 @@ void setup()
 
   console.begin(57600);
   console.println("Starting....");
-
+  funciones.OLED_DISP("STARTING...", " ", 1);
   
   
   //turngps(gpson);
@@ -277,15 +273,21 @@ void loop() {
   //mode_debug();
   //funciones.REG_OFF();
   //funciones.CORE_SLEEP(1);
+
+  for (int i=0; i<1000;i++){
+      funciones.OLED_DISP("PWR ", funciones.CURRENT_READ(), 1);
+    }
+
   
   funciones.REG_ON();
-
     funciones.I2C_BEGIN();
     funciones.I2C_SCAN();
     funciones.RTC_START();   
-
+    funciones.NEO_INT_SETUP();
+    funciones.NEO_INT_SET(200, 200, 200);
   funciones.REG_OFF();
-  
+
+
   funciones.UPDATE();
 
 
@@ -797,7 +799,7 @@ int modo_normal() {
 
 
   //console.print("QRY>");console.print(qry);console.println("<");
-  disp("Enviando ", "", 1);
+  //disp("Enviando ", "", 1);
   console.print(url); console.println(qry);
 
   //if (corrupt(qry) != 1){
@@ -1246,7 +1248,7 @@ void confmodem() {
     malinicio++;
     if (malinicio >= 3 ) {
       malinicio = 0;
-      disp("MAL:", String(malinicio), 1);
+      //disp("MAL:", String(malinicio), 1);
       delay(1000);
       console.print("MAL:");
       console.println(malinicio);
@@ -1305,7 +1307,7 @@ void dormir(int k) {
   for (int m = 1; m <= k; m++) {
     //String va = m + " / " + k;
     console.print("z: "); console.println(String(k - m));
-    disp("idle: ", String(k - m), 1);
+    //disp("idle: ", String(k - m), 1);
 
     //LowPower.idle(SLEEP_1S, ADC_ON, TIMER2_ON, TIMER1_ON, TIMER0_ON, SPI_ON, USART0_ON, TWI_ON);
     //LowPower.powerSave(SLEEP_1S, ADC_ON, BOD_ON,TIMER2_ON);
@@ -1544,7 +1546,7 @@ String printFloat(float val, bool valid, int len, int prec)
 
 }
 
-
+/*
 void confdisp() {
   // by default, we'll generate the high voltage from the 3.3v line internally! (neat!)
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // initialize with the I2C addr 0x3D (for the 128x64)
@@ -1586,7 +1588,7 @@ void disp(String q, String w, int linea) {
 
 
 }
-
+*/
 
 void scani2c() {
 /*
