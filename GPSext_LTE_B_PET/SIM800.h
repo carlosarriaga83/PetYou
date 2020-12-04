@@ -44,6 +44,8 @@ typedef struct {
 
 class CGPRS_SIM800 {
 public:
+
+    void GSM_PWRKEY();
     CGPRS_SIM800():httpState(HTTP_DISABLED) {}
     // initialize the module
     bool init();
@@ -74,40 +76,35 @@ public:
     // return 0 for in progress, -1 for error, bytes of http payload on success
     int httpIsRead();
     //general query command
+
     void AT(const char* ATcmd);
+    void AT_TIMEOUT(const char* ATcmd, int t, const char* expected);
     byte qryAT(const char* qcmd, unsigned int timeout, const char* expected);
     // send AT command and check for expected response
-    byte sendCommand(const char* cmd, unsigned int timeout = 2000, const char* expected = 0);
-    //byte sendCommand(String cmd, unsigned int timeout = 2000, const char* expected = 0);
+    //byte sendCommand(const char* cmd, unsigned int timeout = 2000, const char* expected = 0);
+    byte sendCommand(String cmd, unsigned int timeout = 2000, const char* expected = 0);
     // send AT command and check for two possible responses
-    byte sendCommand(const char* cmd, const char* expected1, const char* expected2, unsigned int timeout = 2000);
-    //byte sendCommand(String cmd, const char* expected1, const char* expected2, unsigned int timeout = 2000);
+    //byte sendCommand(const char* cmd, const char* expected1, const char* expected2, unsigned int timeout = 2000);
+    byte sendCommand(String cmd, const char* expected1, const char* expected2, unsigned int timeout = 2000);
     // toggle low-power mode
     bool sleep(bool enabled)
     {
       //pinMode(SIM800_RESET_PIN, OUTPUT);
       if(enabled){
            
-          //sendCommand("AT+CFUN=0");
-          //delay(3000);   
+
     pinMode(SIM800_RESET_PIN, OUTPUT);
     digitalWrite(SIM800_RESET_PIN, LOW);
-    delay(500);
+    //delay(500);
     digitalWrite(SIM800_RESET_PIN, HIGH);
     delay(1100);
     digitalWrite(SIM800_RESET_PIN, LOW);
-    delay(3000);
+    //delay(3000);
 
-          //sendCommand("AT+CPOWD=1");
-          //delay(3000);
 
-          //sendCommand("AT+CSCLK=2");
-          //delay(1000);
-          
           
         }else{
-          //sendCommand("AT+CPOWD=0");
-          //delay(3000);
+
           sendCommand("AT+CFUN=1");
           delay(3000);
 
@@ -120,7 +117,7 @@ public:
     digitalWrite(SIM800_RESET_PIN, HIGH);
     delay(3000);
             
-            delay(3000);
+            //delay(3000);
             
           }
           return true;
@@ -132,7 +129,7 @@ public:
       //return Serial11.read(); 
     }
     //char buffer[256];
-    char buffer[90];
+    char buffer[250];
     String buf;
     byte httpState;
 private:
